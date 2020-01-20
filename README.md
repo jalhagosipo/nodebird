@@ -26,4 +26,7 @@ sns 서비스.
 - 비밀키는 .env라는 파일에 모아두고, dotenv가 .env 파일을 읽어 precess.env객체에 넣음
 `npm i dotenv` 
 
+## v 0.11
+- 사용할 모델 생성하기 (User, Hashtag, Post)
+
 
