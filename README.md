@@ -29,4 +29,9 @@ sns 서비스.
 ## v 0.11
 - 사용할 모델 생성하기 (User, Hashtag, Post)
 
+## v0.2
+`sequelize db:create`을 통해 데이터베이스를 생성
+- 모델과 서버 연결
+- 시퀄라이즈는 테이블 생성 쿼리문에 if not exists를 넣어주므로 테이블이 없을 때 테이블을 자동으로 생성
+
 
