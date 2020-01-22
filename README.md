@@ -39,12 +39,13 @@ sns 서비스.
     - `npm i passport passport-local passport-kakao bcrypt`
     - bcrypt가 설치가 안될경우 `npm install --save bcryptjs && npm uninstall --save bcrypt`를 사용해 `bcrypt`를 대신한다.
     - developers.kakao.com에서 clientId발급 > restapi키를 넣음
-    | 모듈 | 기능 | 
-    |---|:---:|
-    | bcrypt | 비밀번호를 암호화 | 
-    | passport-local | 로컬 로그인이 가능 | 
-    | passport-kakao | 카카오 로그인 | 
-    | passport | node.js용 범용 인증 모듈 | 
+    
+| 모듈 | 기능 | 
+|---|:---:|
+| bcrypt | 비밀번호를 암호화 | 
+| passport-local | 로컬 로그인이 가능 | 
+| passport-kakao | 카카오 로그인 | 
+| passport | node.js용 범용 인증 모듈 | 
 
 ## v0.4
 - 이미지 업로드 구현
@@ -52,3 +53,22 @@ sns 서비스.
     - input태그를 통해 이미지를 선택할 때 먼저 업로드를 진행
     - 업로드된 사진 주소를 다시 클라이언트에 알려줄것
     - 게시글 저장 시에는 이미지 데이터 대신 이미지 주소를 저장
+
+## v1.0
+- 해시태그, 팔로우/팔로잉
+
+## v1.1
+- 팔로잉 끊기
+    - 시퀄라이즈의 destroy 메서드와 라우터 활용
+
+## v1.2
+- 프로필 정보 변경하기
+    - 시퀄라이즈의 update 메서드와 라우터 활용
+
+## v1.3
+- 게시글 좋아요 누르기 및 좋아요 취소하기
+    - 사용자/게시글 모델간 N:M 관계 정립 후 라우터 활용
+
+## v1.4
+- 게시글 삭제하기
+    - 등록자와 현재 로그인한 사용자가 같을 때, 시퀄라이즈의 destroy 메서드와 라우터 활용
