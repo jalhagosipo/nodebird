@@ -4,13 +4,17 @@ const morgan = require('morgan');
 const path = require('path');
 const session = require('express-session');
 const flash = require('connect-flash');
+const passport = require('passport');
 require('dotenv').config();
 
 const pageRouter = require('./routes/page');
+const authRouter = require('./routes/auth');
 const { sequelize } = require('./models');
+const passportConfig = require('./passport'); // require('./passport/index.js'); 와 같음. 폴더 내의 index파일은 require시 생략할수있음.
 
 const app = express();
 sequelize.sync();
+passportConfig(passport);
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -31,8 +35,15 @@ app.use(session({
   },
 }));
 app.use(flash());
+// 요청객체에 passport설정을 심음
+app.use(passport.initialize()); 
+// req.session객체에 passport정보를 저장. 
+// req.session은 express-session에서 생성하는 것이므로 passport미들웨어는 express-session보다 뒤에 연결해야함
+app.use(passport.session()); 
+                            
 
 app.use('/', pageRouter);
+app.use('/auth', authRouter);
 
 app.use((req, res, next) => {
   const err = new Error('Not Found');
