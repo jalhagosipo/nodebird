@@ -9,7 +9,7 @@ module.exports = (passport) => {
     callbackURL: '/auth/kakao/callback', // 카카오로부터 인증 결과를 받을 라우터 주소
   }, async (accessToken, refreshToken, profile, done) => {
     try {
-      const exUser = await User.find({ where: { snsId: profile.id, provider: 'kakao' } });
+      const exUser = await User.findOne({ where: { snsId: profile.id, provider: 'kakao' } });
       if (exUser) {
         // 기존에 카카오로 로그인한 사용자인지 조회 후 있다면 done호출
         done(null, exUser);

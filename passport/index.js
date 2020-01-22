@@ -36,7 +36,7 @@ module.exports = (passport) => {
     // 매요청시 실행됨
     //passport.session()미들웨어가 이 메서드를 호출
     passport.deserializeUser((id, done) => {
-        User.find({
+        User.findOne({
                 where: { id }
             }) // serializeUser에서 세션에 저장했던 아이디를 받아 디비에서 사용자 정보를 조회
             .then(user => done(null, user)) // 조회한정보를 req.user를 통해 로그인한 사용자의 정보를 가져올 수 있음

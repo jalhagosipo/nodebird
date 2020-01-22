@@ -34,7 +34,7 @@ sns 서비스.
 - 모델과 서버 연결
 - 시퀄라이즈는 테이블 생성 쿼리문에 if not exists를 넣어주므로 테이블이 없을 때 테이블을 자동으로 생성
 
-## v0.21
+## v0.3
 - 세션과 쿠키 처리 등 복잡한 작업이 많으므로 검증된 모듈인 `passport`를 사용
 - `npm i passport passport-local passport-kakao bcrypt`
 - bcrypt가 설치가 안될경우 `npm install --save bcryptjs && npm uninstall --save bcrypt`를 사용해 네개의 모듈을 설치

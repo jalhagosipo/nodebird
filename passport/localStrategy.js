@@ -21,7 +21,7 @@ module.exports = (passport) => {
   }, async (email, password, done) => {
     try {
       // 디비에서 일치하는 이메일이 있는지 찾는다.
-      const exUser = await User.find({ where: { email } });
+      const exUser = await User.findOne({ where: { email } });
       
       // 있다면,
       if (exUser) {
