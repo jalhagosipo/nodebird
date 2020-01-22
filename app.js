@@ -9,6 +9,7 @@ require('dotenv').config();
 
 const pageRouter = require('./routes/page');
 const authRouter = require('./routes/auth');
+const postRouter = require('./routes/post');
 const { sequelize } = require('./models');
 const passportConfig = require('./passport'); // require('./passport/index.js'); 와 같음. 폴더 내의 index파일은 require시 생략할수있음.
 
@@ -22,6 +23,7 @@ app.set('port', process.env.PORT || 3000);
 
 app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/img', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
@@ -41,9 +43,9 @@ app.use(passport.initialize());
 // req.session은 express-session에서 생성하는 것이므로 passport미들웨어는 express-session보다 뒤에 연결해야함
 app.use(passport.session()); 
                             
-
 app.use('/', pageRouter);
 app.use('/auth', authRouter);
+app.use('/post', postRouter);
 
 app.use((req, res, next) => {
   const err = new Error('Not Found');
