@@ -81,4 +81,31 @@ router.post('/', isLoggedIn, upload2.none(), async (req, res, next) => {
   }
 });
 
+router.get('/hashtag', async (req, res, next) => {
+    // 쿼리스트링으로 해시태그이름을 받기
+    const query = req.query.hashtag;
+
+    if (!query) {
+      return res.redirect('/');
+    }
+    try {
+        // 해시태그 검색
+      const hashtag = await Hashtag.findOne({ where: { title: query } });
+
+      let posts = [];
+      if (hashtag) {
+          // 게시글 가져올때는 작성자정보를 join한다.
+        posts = await hashtag.getPosts({ include: [{ model: User }] });
+      }
+      return res.render('main', {
+        title: `${query} | NodeBird`,
+        user: req.user,
+        twits: posts,
+      });
+    } catch (error) {
+      console.error(error);
+      return next(error);
+    }
+});
+  
 module.exports = router;
