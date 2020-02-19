@@ -11,6 +11,8 @@ module.exports = (sequelize, DataTypes) => (
     },{
         timestamps: true,
         paranoid: true,
+        charset: 'utf8', 
+        collate: 'utf8_general_ci',
     })
 );
 // 게시글 등록자의 아이디를 담은 컬럼은 나중에 관계를 설정할 때 시퀄라이즈가 알아서 생성해줌

@@ -26,5 +26,7 @@ module.exports = (sequelize, DataTypes) => (
         // createdAt, updatedAt, deletedAt 컬럼도 생성하도록 아래 조건 추가
         timestamps: true,
         paranoid: true,
+        charset: 'utf8', 
+        collate: 'utf8_general_ci',
     })
 );
