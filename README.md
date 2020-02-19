@@ -54,8 +54,53 @@ sns 서비스.
     - 업로드된 사진 주소를 다시 클라이언트에 알려줄것
     - 게시글 저장 시에는 이미지 데이터 대신 이미지 주소를 저장
 
-## v1.0
+## v0.5
 - 해시태그, 팔로우/팔로잉
+
+## v0.6
+- 서비스 운영을 위한 패키지 준비
+- morgan과 express-session을 수정
+    - process.env.NODE_ENV = 배포환경이 개발환경인지 운영환경인지 확인할 수 있는 변수
+- sequelize도 배포환경 설정을 위한 수정
+    - json파일로 비밀번호가 하드코딩 되어있음 -> .config삭제 후 js파일 생성
+    - process.env가 development일 때는 development속성의 설정 내용이 적용되고, production일 때는 production 속성의 설정 내용이 적용됨
+    - .env에  `SEQUELIZE_ID = 아이디, SEQUELIZE_PASSWORD = 비밀번호` 추가
+    - DB에 한글저장 에러를 피하기위해 모델파일들 안에 `charset: 'utf8', collate: 'utf8_general_ci',` 추가
+- cross-env 패키지를 사용해 동적으로 process.env 변경
+    - package.json에 script 추가
+        - `"start": "NODE_ENV=production PORT=80 node app"` : 배포 환경에서 사용하는 스크립트
+            - `NODE_ENV=production`는 리눅스나맥에서는 되지만, 윈도우에서는 설정이 안됨 
+            - -> 이때 cross-env사용 `npm i -g cross-env && npm i cross-env`, NODE_ENV 앞에 cross_env를 추가
+        - `"dev": "nodemon app"` : 개발환경에서 사용하는 스크립트
+- retire를 통해 문제가 있는 패키지를 확인
+    - `npm i -g retire`
+    - 취약점이 발견되면 패키지 관리자가 빠르게 수정
+        - npm 5.10 부터는  `npm audit`명령어가 추가됨 -> `npm install` 할때 자동으로 취약점을 검사
+        - `npm audit fix` : npm이 수정할 수 있는 오류는 자동으로 수정
+- pm2
+    - 서버가 에러로 인해 꺼졌을 때 서버를 다시 켜줌
+    - 멀티 프로세싱(멀티 스레딩은 아님) : 노드는 클라이언트로부터 요청이 왔을 때 요청을 여러 노드 프로세스에 고르게 분배
+        - 단점 : 멀티 스레딩이 아니므로 서버의 메모리 같은 자원을 공유하지는 못함
+            - 세션을 메모리에 저장했는데 메모리를 공유하지 못해서 프로세스 간에 세션이 공유되지 않음 -> 로그인 후 새로고침시 세션 있는 프로세스로 요청이 가면 로그인된 상태가되고, 세션 없는 프로세스로 요청이 가면 로그인 안된 상태
+            - => 세션 공유해줘라! -> Memcached,Redis 등을 사용
+            - `npm i -g pm2 && npm i pm2`
+            - `"start": "cross-env NODE_ENV=production PORT=80 pm2 start app.js"`로 변경
+            - `npm start`를 하면 node,nodemon과는 다르게 노드프로세스가 실행되면서 콘솔에 다른 명령어를 입력할 수 있음 -> pm2가 노드 프로세스를 백그라운드로 돌리기 때문
+            - `pm2 list` : 백그라운드에서 돌고 있는 노드 프로세스를 확인
+            - `pm2 kill` : pm2 프로세스 종료
+            - `pm2 reload all` : 서버 재시작
+            - `"start": "cross-env NODE_ENV=production PORT=80 pm2 start app.js -i 0"`로 변경
+                - 노드의 cluster 모듈처럼 클러스터링을 가능하게함. -i 뒤에 생성하길 원하는 프로세스 개수를 넣으면됨
+                    - 0 : 현재 cpu 코어 개수만큼 프로세스를 생성
+                    - -1 : 프로세스를 cpu 코어개수보다 한개 덜 생성(남은 코어하나는 노드 외의 다른 작업을 할 수 있도록)
+            - `pm2 monit` : 현재 프로세스 모니터링
+- winston : 실제 서버 운영 시 console.log와 console.error를 대체하기 위한 모듈
+    - 서버가 종료되도 로그를 볼 수 있도록 파일이나 다른 DB에 저장할 수 있게 해줌
+    - `npm i winston`
+    - logger.js의 logger객체를 만들어 다른 파일에서 사용하도록 함
+    - `winston-daily-rotate-file` : 로그를 날짜별로 관리할 수 있게 해줌
+- helmet, hpp : 서버의 각종 취약점을 보완해주는 패키지
+    - `npm i helmet hpp`
 
 ## v1.1
 - 팔로잉 끊기
