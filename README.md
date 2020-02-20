@@ -112,7 +112,15 @@ sns 서비스.
     - `npm i connect-redis`
     - 메모리가 아닌 레디스에 세션정보가 저장되기 때문에 서버를 업데이트해도 로그인이 풀리지 않음. app.js에 세션과 연결하는 코드를 추가
     - `express-rate-limit` : 사용량을 메모리에 기록하므로 서버를 재시작하면 사용량이 초기화됨 -> 레디스에 기록하는 것이 좋음. `rate-limit-redis`과 같이 사용하면됨
-     
+
+## v0.8
+- aws s3사용해서 이미지 업로드하기
+- aws에서 s3버킷을 생성하고, 액세스키를 생성함
+- multer에서 s3으로 업로드할수있게 해주는 multer-s3패키지 설치
+    - multer-s3은 aws-sdk 패키지도 필요로 하므로 aws-sdk도 설치
+    - `npm i multer-s3 aws-sdk`
+- 발급받은 액세스 키ID와 보안 액세스 키를 env에 추가
+
 ## v1.1
 - 팔로잉 끊기
     - 시퀄라이즈의 destroy 메서드와 라우터 활용

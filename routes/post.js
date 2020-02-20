@@ -2,6 +2,8 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const AWS = require('aws-sdk');
+const multerS3 = require('multer-s3');
 
 const { Post, Hashtag, User } = require('../models');
 const { isLoggedIn } = require('./middlewares');
@@ -16,6 +18,14 @@ fs.readdir('uploads', (error) => {
   }
 });
 
+// aws 설정
+AWS.config.update({
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  // 서울
+  region: 'ap-northeast-2',
+});
+
 // multer모듈에 옵션을 주어 upload변수에 대입
 // upload변수는 미들웨어를 만드는 여러가지메서드를 가지고있음
 // single : 이미지 하나는 req.file로, 나머지 정보는 req.body로
@@ -23,17 +33,14 @@ fs.readdir('uploads', (error) => {
 // array, fields 차이 : 속성 하나에 이미지를 여러개 업로드했다면 array, 여러개속성에 이미지를 하나씩 업로드했다면 fields를 사용
 // none : 이미지를 올리지 않고 데이터만 multipart형식으로 전송했을때 사용
 const upload = multer({
-    // 파일 저장방식과 경로, 파일명 등을 설정
-    // diskStorage를 사용해 이미지가 서버 디스크에 저장되도록함
-  storage: multer.diskStorage({
-    destination(req, file, cb) {
-        // 저장경로를 nodebird 폴더 아래 uploads 폴더로 지정
-      cb(null, 'uploads/');
-    },
-    filename(req, file, cb) {
-        // 파일명은 기존이름에 업로드 날짜값과 기존확장자를 붙이도록 설정
-      const ext = path.extname(file.originalname);
-      cb(null, path.basename(file.originalname, ext) + new Date().valueOf() + ext);
+
+  // bucket: 버킷명
+  // key: 파일명
+  storage: multerS3({
+    s3: new AWS.S3(),
+    bucket: 'firsts3imsi',
+    key(req, file, cb) {
+      cb(null, `original/${Date.now()}${path.basename(file.originalname)}`);
     },
   }),
   // 최대 이미지 파일 용량 허용치 10MB
@@ -45,7 +52,8 @@ const upload = multer({
 // single메서드에 이미지가 담긴 req.body속성의 이름을 적어줌. 앱에서 이미지를 보낼때 속성이름을 img로 하고있음.
 router.post('/img', isLoggedIn, upload.single('img'), (req, res) => {
   console.log(req.file);
-  res.json({ url: `/img/${req.file.filename}` });
+  // req.file.location에 s3버킷 이미지 주소가 담겨있음.
+  res.json({ url: req.file.location });
 });
 
 
@@ -95,17 +103,17 @@ router.get('/hashtag', async (req, res, next) => {
       let posts = [];
       if (hashtag) {
           // 게시글 가져올때는 작성자정보를 join한다.
-        posts = await hashtag.getPosts({ include: [{ model: User }] });
-      }
-      return res.render('main', {
-        title: `${query} | NodeBird`,
-        user: req.user,
-        twits: posts,
-      });
-    } catch (error) {
-      console.error(error);
-      return next(error);
+      posts = await hashtag.getPosts({ include: [{ model: User }] });
     }
+    return res.render('main', {
+      title: `${query} | NodeBird`,
+      user: req.user,
+      twits: posts,
+    });
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
 });
-  
+
 module.exports = router;
