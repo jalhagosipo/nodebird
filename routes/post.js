@@ -53,7 +53,12 @@ const upload = multer({
 router.post('/img', isLoggedIn, upload.single('img'), (req, res) => {
   console.log(req.file);
   // req.file.location에 s3버킷 이미지 주소가 담겨있음.
-  res.json({ url: req.file.location });
+  // res.json({ url: req.file.location });
+
+  // lambda 서비스를 이용할 수있게 아래 코드로 수정
+  const originalUrl = req.file.location;
+  const url = originalUrl.replace(/\/original\//, '/thumb/');
+  res.json({ url, originalUrl });
 });
 
 
