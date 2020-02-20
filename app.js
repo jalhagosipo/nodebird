@@ -7,7 +7,10 @@ const flash = require('connect-flash');
 const passport = require('passport');
 const helmet = require('helmet');
 const hpp = require('hpp');
+const redis = require('redis');
+const RedisStore = require('connect-redis')(session); // connect-redis는 express-session에 의존성 있음. session인자로 넣어야함
 require('dotenv').config();
+const redisClient = redis.createClient( process.env.REDIS_PORT, process.env.REDIS_HOST);
 
 const pageRouter = require('./routes/page');
 const authRouter = require('./routes/auth');
@@ -37,6 +40,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/img', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
 app.use(cookieParser(process.env.COOKIE_SECRET));
 const sessionOption = {
   resave: false,
@@ -46,6 +50,13 @@ const sessionOption = {
     httpOnly: true,
     secure: false,
   },
+  // 레디스에 세션을 저장하기위해 store 추가
+  store: new RedisStore({
+    client: redisClient,
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+    logErrors: true,
+  })
 };
 if (process.env.NODE_ENV === 'production') {
   // https 를 적용을 위해 노드 서버 앞에 다른 서버를 두었을 때 아래 옵션을 적용하면 됨
